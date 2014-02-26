@@ -35,14 +35,16 @@ class BoardCtrl
   numberofMoves: =>
     Object.keys(@$scope.cells).length
 
+  player: =>
+    if @numberofMoves() % 2 == 0 then 'x' else 'o'
+
   announceWinner: =>
     winner = if @numberofMoves() % 2 == 0 then 'o' else 'x'
     alert ("#{winner} wins!")
 
   mark: (@$event) =>
     cell = @$event.target.dataset.index
-    player = if @numberofMoves() % 2 == 0 then 'x' else 'o'
-    @$scope.cells[cell] = player
+    @$scope.cells[cell] = @player()
     @parseBoard()
 
   parseBoard: =>
