@@ -35,11 +35,13 @@ class BoardCtrl
   numberofMoves: =>
     Object.keys(@$scope.cells).length
 
-  player: =>
-    if @numberofMoves() % 2 == 0 then 'x' else 'o'
+  player: (options) =>
+    options ||= whoMovedLast = false
+    moves = @numberofMoves() - (if options.whoMovedLast then 1 else 0)
+    if moves % 2 == 0 then 'x' else 'o'
 
   announceWinner: =>
-    winner = if @numberofMoves() % 2 == 0 then 'o' else 'x'
+    winner = @player(whoMovedLast: true)
     alert ("#{winner} wins!")
 
   mark: (@$event) =>
