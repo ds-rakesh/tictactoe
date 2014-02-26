@@ -26,19 +26,26 @@ class BoardCtrl
     c2 = c[pattern[2]]
     "#{c0}#{c1}#{c2}"
 
-  checkForWin: (board) =>
+  someoneWon: (board) =>
     'xxx' == board || 'ooo' == board
 
-  parseBoard: =>
-    for pattern in @Settings.WIN_PATTERNS
-      board = @getBoard(pattern)
-      @checkForWin(board)
+  resetBoard: =>
+    @$scope.cells = {}
+
+  announceWinner: =>
+    winner = if @$scope.cells % 2 == 0 then 'o' else 'x'
+    alert ("#{winner} wins!")
 
   mark: (@$event) =>
     cell = @$event.target.dataset.index
     player = if Object.keys(@$scope.cells).length % 2 == 0 then 'x' else 'o'
     @$scope.cells[cell] = player
     @parseBoard()
+
+  parseBoard: =>
+    for pattern in @Settings.WIN_PATTERNS
+      board = @getBoard(pattern)
+      @announceWinner() if @someoneWon(board)
 
 BoardCtrl.$inject = ["$scope", "Settings"]
 ticTacToe.controller "BoardCtrl", BoardCtrl
