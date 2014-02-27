@@ -23,7 +23,6 @@ class BoardCtrl
 
   startGame: =>
     @$scope.gameOn = true
-    @$scope.currentPlayer = @player()
     @resetBoard()
 
   getPatterns: =>
@@ -65,7 +64,7 @@ class BoardCtrl
     if moves % 2 == 0 then 'x' else 'o'
 
   isMixedRow: (row) ->
-    !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo/i)
+    !!row.match(/o+\d?x+|x+\d?o+/i)
 
   hasOneX: (row) ->
     !!row.match(/x\d\d|\dx\d|\d\dx/i)
@@ -116,8 +115,8 @@ class BoardCtrl
       @announceTie()
 
   mark: (@$event) =>
-    if @$scope.gameOn
-      cell = @$event.target.dataset.index
+    cell = @$event.target.dataset.index
+    if @$scope.gameOn and !@cells[cell]
       @cells[cell] = @player()
       @parseBoard()
       @$scope.currentPlayer = @player()

@@ -113,8 +113,8 @@ h1 {
 }
 
 .tied.message {
-  color: hsla(0, 0.0%, 100.0%, 1)
-  background-color: hsla(2, 64.7%, 50.0%, 1);
+  color: hsla(0, 0.0%, 100.0%, 1);
+  background-color: hsla(2, 64.7%, 50.0%, 0.7);
 }
 
 .x.winner.message {

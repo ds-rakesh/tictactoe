@@ -33,7 +33,6 @@
 
     BoardCtrl.prototype.startGame = function() {
       this.$scope.gameOn = true;
-      this.$scope.currentPlayer = this.player();
       return this.resetBoard();
     };
 
@@ -94,7 +93,7 @@
     };
 
     BoardCtrl.prototype.isMixedRow = function(row) {
-      return !!row.match(/ox\d|o\dx|\dox|xo\d|x\do|\dxo/i);
+      return !!row.match(/o+\d?x+|x+\d?o+/i);
     };
 
     BoardCtrl.prototype.hasOneX = function(row) {
@@ -160,8 +159,8 @@
     BoardCtrl.prototype.mark = function($event) {
       var cell;
       this.$event = $event;
-      if (this.$scope.gameOn) {
-        cell = this.$event.target.dataset.index;
+      cell = this.$event.target.dataset.index;
+      if (this.$scope.gameOn && !this.cells[cell]) {
         this.cells[cell] = this.player();
         this.parseBoard();
         return this.$scope.currentPlayer = this.player();
