@@ -2,16 +2,18 @@
 (function() {
   "use strict";
   var BoardCtrl,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  this.ticTacToe = angular.module('TicTacToe', []);
+  this.ticTacToe = angular.module('TicTacToe', ["firebase"]);
 
   ticTacToe.constant('WIN_PATTERNS', [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]);
 
   BoardCtrl = (function() {
-    function BoardCtrl($scope, WIN_PATTERNS) {
+    function BoardCtrl($scope, WIN_PATTERNS, $firebase) {
       this.$scope = $scope;
       this.WIN_PATTERNS = WIN_PATTERNS;
+      this.$firebase = $firebase;
       this.mark = __bind(this.mark, this);
       this.parseBoard = __bind(this.parseBoard, this);
       this.rowStillWinnable = __bind(this.rowStillWinnable, this);
@@ -29,9 +31,14 @@
       this.$scope.mark = this.mark;
       this.$scope.startGame = this.startGame;
       this.$scope.gameOn = false;
+      this.dbRef = new Firebase("https://tictactoe-cheung.firebaseio.com/");
+      this.db = this.$firebase(this.dbRef);
     }
 
     BoardCtrl.prototype.startGame = function() {
+      this.db.$add({
+        name: "annie"
+      });
       this.$scope.gameOn = true;
       return this.resetBoard();
     };
@@ -59,8 +66,9 @@
       this.$scope.theWinnerIs = false;
       this.$scope.cats = false;
       this.cells = this.$scope.cells = {};
-      this.getPatterns();
-      return this.$scope.currentPlayer = this.player();
+      this.winningCells = this.$scope.winningCells = {};
+      this.$scope.currentPlayer = this.player();
+      return this.getPatterns();
     };
 
     BoardCtrl.prototype.numberOfMoves = function() {
@@ -120,11 +128,14 @@
       return this.patternsToTest.length < 1;
     };
 
-    BoardCtrl.prototype.announceWinner = function() {
-      var winner;
-      winner = this.player({
-        whoMovedLast: true
-      });
+    BoardCtrl.prototype.announceWinner = function(winningPattern) {
+      var k, v, winner, _ref, _ref1;
+      winner = this.cells[winningPattern[0]];
+      _ref = this.cells;
+      for (k in _ref) {
+        v = _ref[k];
+        this.winningCells[k] = (_ref1 = parseInt(k), __indexOf.call(winningPattern, _ref1) >= 0) ? 'win' : 'unwin';
+      }
       this.$scope.theWinnerIs = winner;
       return this.$scope.gameOn = false;
     };
@@ -139,18 +150,20 @@
     };
 
     BoardCtrl.prototype.parseBoard = function() {
-      var won;
-      won = false;
+      var winningPattern;
+      winningPattern = false;
       this.patternsToTest = this.patternsToTest.filter((function(_this) {
         return function(pattern) {
           var row;
           row = _this.getRow(pattern);
-          won || (won = _this.someoneWon(row));
+          if (_this.someoneWon(row)) {
+            winningPattern || (winningPattern = pattern);
+          }
           return _this.rowStillWinnable(row);
         };
       })(this));
-      if (won) {
-        return this.announceWinner();
+      if (winningPattern) {
+        return this.announceWinner(winningPattern);
       } else if (this.gameUnwinnable()) {
         return this.announceTie();
       }
@@ -171,7 +184,7 @@
 
   })();
 
-  BoardCtrl.$inject = ["$scope", "WIN_PATTERNS"];
+  BoardCtrl.$inject = ["$scope", "WIN_PATTERNS", "$firebase"];
 
   ticTacToe.controller("BoardCtrl", BoardCtrl);
 
